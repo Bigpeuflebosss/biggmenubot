@@ -1,192 +1,152 @@
-// Server + Bot unified
-const express = require("express");
-const TelegramBot = require("node-telegram-bot-api");
-const crypto = require("crypto");
-const path = require("path");
-require("dotenv").config();
+const express = require('express');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const fetch = require('node-fetch');
 
-// === Security helpers added: cooldowns and rate-limiting ===
-const userCooldowns = new Map(); // userId -> timestamp (ms)
-const orderRateLimits = new Map(); // ip -> {count, firstTs}
-
-// simple helper to enforce cooldown per user (ms)
-function checkUserCooldown(userId, cooldownMs = 3000) {
-  const now = Date.now();
-  if (!userId) return false;
-  if (userCooldowns.has(userId) && (now - userCooldowns.get(userId) < cooldownMs)) {
-    return false;
-  }
-  userCooldowns.set(userId, now);
-  return true;
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
+if (!TELEGRAM_TOKEN) {
+  console.error("Missing TELEGRAM_TOKEN");
 }
-
-// simple per-IP rate limiter: max 5 requests per 60s
-function checkRateLimit(ip, maxRequests = 5, windowMs = 60 * 1000) {
-  if (!ip) return false;
-  const now = Date.now();
-  const rec = orderRateLimits.get(ip);
-  if (!rec) {
-    orderRateLimits.set(ip, { count: 1, firstTs: now });
-    return true;
-  }
-  if (now - rec.firstTs > windowMs) {
-    // reset window
-    orderRateLimits.set(ip, { count: 1, firstTs: now });
-    return true;
-  }
-  if (rec.count >= maxRequests) return false;
-  rec.count += 1;
-  return true;
-}
-
+const WEBAPP_URL = process.env.WEBAPP_URL || "https://example.com"; // laisse inchangé si non défini
+const API_URL = `https://api.telegram.org/bot${TELEGRAM_TOKEN}`;
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const TOKEN = process.env.BOT_TOKEN;
-const TARGET_CHAT_ID = process.env.TARGET_CHAT_ID || null;
+app.set('trust proxy', 1);
 
-if (!TOKEN) {
-  console.error("❌ BOT_TOKEN manquant. Ajoute BOT_TOKEN dans tes variables d'environnement.");
-  process.exit(1);
+// Sécurité HTTP
+app.use(helmet({
+  frameguard: { action: 'sameorigin' },
+  referrerPolicy: { policy: 'no-referrer' }
+}));
+// Payload JSON
+app.use(express.json({ limit: '512kb' }));
+// Rate limit global
+const limiter = rateLimit({
+  windowMs: 10 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
+
+// --- Vérification du webhook (facultatif mais recommandé) ---
+const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET;
+function verifyTelegram(req, res, next) {
+  if (!WEBHOOK_SECRET) return next();
+  const header = req.get('x-telegram-bot-api-secret-token');
+  if (header && header === WEBHOOK_SECRET) return next();
+  return res.status(401).send('unauthorized');
 }
 
-// 1) Bot
-const bot = new TelegramBot(TOKEN, { polling: true });
+// --- Anti-spam par utilisateur ---
+const userState = new Map(); // userId -> { lastAt, strikes, mutedUntil, seenUpdateIds:Set }
+function isMuted(state) { return state.mutedUntil && Date.now() < state.mutedUntil; }
+function punish(state){
+  state.strikes = (state.strikes || 0) + 1;
+  const durations = [60e3, 5*60e3, 30*60e3]; // 1,5,30 min
+  const dur = durations[Math.min(state.strikes-1, durations.length-1)];
+  state.mutedUntil = Date.now() + dur;
+  return dur;
+}
+function allowAction(userId, updateId){
+  let s = userState.get(userId);
+  if (!s) { s = { lastAt: 0, strikes: 0, mutedUntil: 0, seenUpdateIds: new Set() }; userState.set(userId, s); }
+  if (typeof updateId === 'number') {
+    if (s.seenUpdateIds.has(updateId)) return { ok:false, reason:'dup' };
+    s.seenUpdateIds.add(updateId);
+    if (s.seenUpdateIds.size > 200) {
+      const it = s.seenUpdateIds.values(); for (let i=0;i<50;i++) s.seenUpdateIds.delete(it.next().value);
+    }
+  }
+  if (isMuted(s)) return { ok:false, reason:'muted', until:s.mutedUntil };
+  const now = Date.now();
+  if (now - s.lastAt < 3000) { const dur = punish(s); return { ok:false, reason:'cooldown', mute:dur }; }
+  s.lastAt = now;
+  return { ok:true };
+}
 
-// --- Anti-spam listener for incoming messages (3s cooldown per user)
-try {
-  bot.on("message", async (msg) => {
-    try {
-      const userId = msg?.from?.id;
-      if (!checkUserCooldown(userId, 3000)) {
-        try { await bot.sendMessage(userId, "⏳ Patiente un instant avant de renvoyer un message."); } catch(e){}
-        return;
-      }
-    } catch(e){}
+// --- Utilitaires Telegram ---
+async function tg(method, payload) {
+  const res = await fetch(`${API_URL}/${method}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    timeout: 5000
   });
-} catch(e){ console.error("anti-spam listener failed", e && e.message); }
+  return res.json().catch(()=>({ ok:false }));
+}
 
-bot.onText(/\/start/, (msg) => {
-  const chatId = msg.chat.id;
-
-  const webAppUrl = process.env.WEBAPP_URL || "https://biggmenubot.onrender.com";
-  const welcome = `Bienvenue sur Big Menu 🍃
-
-Ouvre le menu ci-dessous pour passer commande.`;
-
-  bot.sendMessage(chatId, welcome, {
+async function sendWelcome(chatId) {
+  return tg("sendMessage", {
+    chat_id: chatId,
+    text: "Bienvenue 👋",
     reply_markup: {
-      keyboard: [[{ text: "🛍️ Ouvrir le menu", web_app: { url: webAppUrl } }]],
-      resize_keyboard: true,
-    },
+      inline_keyboard: [
+        [{ text: "🛍️ Ouvrir le menu", url: WEBAPP_URL }],
+        [
+          { text: "ℹ️ Infos", callback_data: "info" },
+          { text: "📞 Contact", callback_data: "contact" }
+        ]
+      ]
+    }
   });
-});
-
-// Petit utilitaire pour récupérer facilement l'ID de chat
-bot.onText(/\/id/, (msg) => {
-  const chatId = msg.chat.id;
-  bot.sendMessage(chatId, `Ton chat_id est: \`${chatId}\``, { parse_mode: "Markdown" });
-  console.log("➡️ chat_id:", chatId);
-});
-
-// Log de base pour aider à récupérer des IDs si besoin
-bot.on("message", (msg) => {
-  console.log("📩 Message reçu de", msg.from?.username || msg.from?.id, "chat_id:", msg.chat?.id);
-});
-
-// 2) Express middlewares
-app.use(express.json({ limit: "1mb" }));
-
-// 3) Static files (WebApp)
-const publicDir = path.join(__dirname, "public");
-app.use(express.static(publicDir));
-
-// 4) Healthcheck
-app.get("/healthz", (req, res) => res.json({ ok: true }));
-
-// 5) Telegram WebApp initData verification
-function verifyTelegramInitData(initData) {
-  try {
-    const urlParams = new URLSearchParams(initData);
-    const hash = urlParams.get("hash");
-    if (!hash) return false;
-
-    urlParams.delete("hash");
-    const dataCheckString = Array.from(urlParams.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([k, v]) => `${k}=${v}`)
-      .join("\n");
-
-    const secretKey = crypto
-      .createHmac("sha256", "WebAppData")
-      .update(TOKEN)
-      .digest();
-
-    const hmac = crypto
-      .createHmac("sha256", secretKey)
-      .update(dataCheckString)
-      .digest("hex");
-
-    return hmac === hash;
-  } catch (e) {
-    console.error("verifyTelegramInitData error:", e);
-    return false;
-  }
 }
 
-// 6) Order endpoint (optional for your current frontend; safe to keep)
-app.post("/api/order", async (req, res) => {
+async function sendInfo(chatId) {
+  return tg("sendMessage", {
+    chat_id: chatId,
+    text: "Infos du shop (horaires, zones, etc.).",
+  });
+}
 
-  // --- Security checks: rate-limit by IP and verify initData HMAC ---
+async function sendContact(chatId) {
+  return tg("sendMessage", {
+    chat_id: chatId,
+    text: "Contact : @peufcommandes",
+  });
+}
+
+async function ackCallback(id) {
+  try { await tg("answerCallbackQuery", { callback_query_id: id }); } catch(e) {}
+}
+
+// --- Routes ---
+app.get("/", (req, res) => res.send("BigMenu bot OK"));
+
+// Webhook (POST)
+app.post("/webhook", verifyTelegram, async (req, res) => {
   try {
-    const ip = (req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress || '').split(',')[0].trim();
-    if (!checkRateLimit(ip)) {
-      return res.status(429).json({ error: "Too many requests" });
+    const u = req.body || {};
+    const userId =
+      u.message?.from?.id ||
+      u.callback_query?.from?.id ||
+      u.inline_query?.from?.id;
+    const updateId = u.update_id;
+
+    const gate = allowAction(userId, updateId);
+    if (!gate.ok) { return res.sendStatus(200); }
+
+    if (u.message) {
+      const chatId = u.message.chat.id;
+      const text = u.message.text || "";
+      if (text.startsWith("/start")) {
+        await sendWelcome(chatId);
+      } else {
+        // ignore ou ajouter d'autres commandes si besoin
+      }
+    } else if (u.callback_query) {
+      const chatId = u.callback_query.message?.chat?.id;
+      const data = u.callback_query.data;
+      if (u.callback_query.id) await ackCallback(u.callback_query.id);
+      if (data === "info") await sendInfo(chatId);
+      else if (data === "contact") await sendContact(chatId);
     }
-  } catch(e) {
-    // continue on error
-  }
-
-  // verify initData if provided
-  if (req.body && req.body.initData && !verifyTelegramInitData(req.body.initData, process.env.BOT_TOKEN)) {
-    return res.status(403).json({ error: "initData invalide" });
-  }
-
-
-  try {
-    const { initData, message } = req.body || {};
-
-    if (!initData || !verifyTelegramInitData(initData)) {
-      return res.status(403).json({ error: "initData invalide" });
-    }
-
-    const params = new URLSearchParams(initData);
-    const userJson = params.get("user");
-    let user = {};
-    try {
-      user = JSON.parse(decodeURIComponent(userJson || "{}"));
-    } catch {}
-
-    const username =
-      user?.username ? `@${user.username}` : [user?.first_name, user?.last_name].filter(Boolean).join(" ") || "Client";
-
-    const text = `📦 *Nouvelle commande Big Menu*\n👤 ${username}\n\n🛒 ${message || "(message vide)"}\n`;
-
-    if (TARGET_CHAT_ID) {
-      await bot.sendMessage(TARGET_CHAT_ID, text, { parse_mode: "Markdown" });
-    } else if (user?.id) {
-      await bot.sendMessage(user.id, text, { parse_mode: "Markdown" });
-    }
-
-    res.json({ ok: true });
-  } catch (err) {
-    console.error("Erreur /api/order:", err);
-    res.status(500).json({ error: "Erreur serveur" });
+    res.sendStatus(200);
+  } catch (e) {
+    console.error("webhook error", e);
+    res.sendStatus(500);
   }
 });
 
-// 7) Start server
-app.listen(PORT, () => {
-  console.log(`✅ Serveur en ligne sur port ${PORT}`);
-  console.log(`🌐 WebApp: http://localhost:${PORT}/`);
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Bot listening on ${PORT}`));
