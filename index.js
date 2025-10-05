@@ -49,7 +49,8 @@ function checkRateLimit(ip, maxRequests = 5, windowMs = 60 * 1000) {
   if (!rec) {
     orderRateLimits.set(ip, { count: 1, firstTs: now   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
     return true;
@@ -58,7 +59,8 @@ function checkRateLimit(ip, maxRequests = 5, windowMs = 60 * 1000) {
     // reset window
     orderRateLimits.set(ip, { count: 1, firstTs: now   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
     return true;
@@ -82,7 +84,8 @@ if (!TOKEN) {
 // 1) Bot
 const bot = new TelegramBot(TOKEN, { polling: true   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
 
@@ -106,12 +109,14 @@ Ouvre le menu ci-dessous pour passer commande.`;
     },
     });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+;
   }
 });
 
@@ -120,13 +125,15 @@ bot.onText(/\/id/, (msg) => {
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, `Ton chat_id est: \`${chatId}\``, { parse_mode: "Markdown"   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
   console.log("➡️ chat_id:", chatId);
   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
 
@@ -182,7 +189,8 @@ app.post("/api/order", async (req, res) => {
     if (!checkRateLimit(ip)) {
       return res.status(429).json({ error: "Too many requests"   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
     }
@@ -194,7 +202,8 @@ app.post("/api/order", async (req, res) => {
   if (req.body && req.body.initData && !verifyTelegramInitData(req.body.initData, process.env.BOT_TOKEN)) {
     return res.status(403).json({ error: "initData invalide"   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
   }
@@ -206,7 +215,8 @@ app.post("/api/order", async (req, res) => {
     if (!initData || !verifyTelegramInitData(initData)) {
       return res.status(403).json({ error: "initData invalide"   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
     }
@@ -226,33 +236,38 @@ app.post("/api/order", async (req, res) => {
     if (TARGET_CHAT_ID) {
       await bot.sendMessage(TARGET_CHAT_ID, text, { parse_mode: "Markdown"   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
     } else if (user?.id) {
       await bot.sendMessage(user.id, text, { parse_mode: "Markdown"   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
     }
 
     res.json({ ok: true   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
   } catch (err) {
     console.error("Erreur /api/order:", err);
     res.status(500).json({ error: "Erreur serveur"   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
   }
   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
 
@@ -262,6 +277,7 @@ app.listen(PORT, () => {
   console.log(`🌐 WebApp: http://localhost:${PORT}/`);
   });
   if (result.blocked) {
-    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+    bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+
   }
 });
