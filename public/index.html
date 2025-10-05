@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>
+   Big Menu — BigPeuf® WebApp
+  </title>
+<link href="css/style.css" rel="stylesheet"/>
+<style>
+   .product-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 10px rgba(255,255,255,0.1);
+  transition: all 0.3s ease;
+}
+.price-tag {
+  background: #222;
+  border: 1px solid #444;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 13px;
+  display: inline-block;
+  margin: 2px 0;
+}
+body {
+  font-family: 'Poppins', sans-serif;
+}
+        section[data-cat="PROMOTIONS"] {
+            display: none;
+        }
+  
+/* ✅ Correction affichage croix sur iPhone */
+#cart {
+  padding-right: 20px; /* espace interne à droite */
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.cart-line .remove-btn {
+  padding: 0 12px 0 5px;  /* plus de place à droite */
+  margin-right: 0;        /* supprime le décalage négatif */
+  transform: translateX(-4px); /* décale légèrement vers la gauche */
+}
+@supports (-webkit-touch-callout: none) {
+  #cart {
+    padding-right: 25px;
+  }
+}
+
+
+/* 🔔 Notification centrale + Animation vers panier */
+.notifier {
+  display: none;
+  position: fixed;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  z-index: 1000;
+  animation: fadeinout 2s ease;
+}
+@keyframes fadeinout {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.fly-anim {
+  position: fixed;
+  z-index: 2000;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  background: #00c853;
+  border-radius: 50%;
+  padding: 5px 8px;
+  pointer-events: none;
+  opacity: 0.9;
+  transition: transform 0.8s ease-in, opacity 0.8s ease-in;
+}
+
+
+/* 🧭 Déplacement du badge panier à gauche */
+#cart-badge {
+  position: absolute;
+  top: 0;
+  left: -8px; /* décalé à gauche au lieu de right: -8px */
+  transform: translate(-50%, 0);
+  background: #ff4444;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+
+/* 🎨 Harmonisation couleur badge & animation avec les tuiles */
+.fly-anim {
+  background: #00c853 !important;
+  color: white;
+  box-shadow: 0 0 6px #00c853;
+}
+#cart-badge {
+  background: #00c853 !important;
+  box-shadow: 0 0 6px #00c853;
+}
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Poppins&amp;display=swap" rel="stylesheet"/>
+<style>
+   #notifier {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #111;
+  color: white;
+  padding: 14px 24px;
+  border-radius: 12px;
+  display: none;
+  z-index: 1001;
+  font-size: 16px;
+  text-align: center;
+}
+#scrollTopBtn {
+  position: fixed;
+  bottom: 120px;
+  right: 20px;
+  background: #444;
+  color: white;
+  font-size: 22px;
+  padding: 8px 12px;
+  border-radius: 50%;
+  z-index: 999;
+  display: none;
+}
+button {
+  padding: 12px 16px;
+  font-size: 16px;
+}
+button:active {
+  transform: scale(0.98);
+  background-color: #222;
+}
+@media (max-width: 500px) {
+  .product-card {
+    margin: 10px 5px;
+  }
+  h2 {
+    font-size: 18px;
+  }
+}
+  </style>
+<style>
+   .details button {
+  margin: 6px 0;
+}
+  </style>
+<style>
+   @keyframes shake {
+  0% { transform: translate(1px, 0); }
+  25% { transform: translate(-1px, 0); }
+  50% { transform: translate(1px, 0); }
+  75% { transform: translate(-1px, 0); }
+  100% { transform: translate(0, 0); }
+}
+#quick-links a.cart-shake {
+  animation: shake 0.4s ease-in-out infinite;
+}
+  </style>
+<style>
+   button {
+  padding: 10px 16px;
+  font-size: 16px;
+  font-weight: bold;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  margin: 4px 0;
+  cursor: pointer;
+  
+  transition: transform 0.1s ease, background 0.3s ease;
+}
+button:hover {
+  background: #555;
+}
+button:active {
+  transform: scale(0.95);
+}
+.filter-btn {
+  margin: 4px;
+  background: #333;
+  color: white;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 14px;
+  border: 1px solid #666;
+}
+.filter-btn:hover {
+  background: #555;
+}
+  <!--
+  </style>
+<style>
+</style>
+  --&gt;
+  <style>
+   .close-desc-btn {
+  text-align: center;
+  color: #aaa;
+  cursor: pointer;
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: bold;
+}
+.close-desc-btn:hover {
+  color: #fff;
+}
+  </style>
+<meta content="#111" name="theme-color"/>
+<meta content="Big Menu — produits, panier, commande via Telegram." name="description"/>
+<meta content="Big Menu — BigPeuf®" property="og:title"/>
+<meta content="website" property="og:type"/>
+<meta content="images/logo.png" property="og:image"/>
+<style>
+/* Normalisation taille des titres produits HASH vs WEEDS */
+.category[data-cat="WEEDS"] .product-card h3,
+.category[data-cat="HASH"] .product-card h3 {
+  font-size: 1.05rem;
+}
+</style><style>
+/* --- Mobile layout: varieties first, prices one-line --- */
+@media (max-width: 640px) {
+  .details .variety-bubble {
+    order: -1;
+    width: 100%;
+    margin-top: 6px;
+    margin-bottom: 8px;
+  }
+  .details .price-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    white-space: nowrap;
+  }
+  .details .price-line .price-label {
+    flex: 1 1 auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+  }
+  .details .price-line .add-btn,
+  .details .price-line button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+</style><style>
+.variety-label {
+  font-size: 0.85rem;
+  color: #ccc;
+  margin-bottom: 4px;
+}
+</style></head>
+<body>
+<div id="notifier">
+   ✅ Ajouté au panier
+  </div>
+<header>
+   🕒 18h - 23h 
+  </header>
+<main style="padding-bottom: 260px;">
+<div id="filter-bar" style="position:sticky;top:0;z-index:1000;background:#111;padding:10px 5px;text-align:left;overflow-x:auto;white-space:nowrap;">
+<button class="filter-btn" onclick="filterCategory('all')">
+     Tous
+    </button>
+<button class="filter-btn" onclick="filterCategory('PROMOTIONS')">
+     Promotions
+    </button>
+<button class="filter-btn" onclick="filterCategory('WEEDS')">
+     Weeds
+    </button>
+<button class="filter-btn" onclick="filterCategory('HASH')">
+     Hash
+    </button>
+<button class="filter-btn" onclick="filterCategory('PACKS')">
+     Packs
+    </button>
+</div>
+<section class="category" data-cat="PROMOTIONS">
+<h2>
+     🔥 PROMOTIONS
+    </h2>
+<div class="product-card" onclick="toggle('promo1')">
+<h3>
+      MOUSSEUX
+     </h3>
+<div class="details" id="promo1" style="display: none;">
+<img alt="Promo automatiquement appliquée" class="product-image" loading="lazy" src="images/chanel.jpeg"/>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+<p>
+</p>
+<div class="price-line">
+<span class="price-label">
+        40€ → 10g
+       </span>
+<button class="add-btn" onclick="addToCart('Promo', '10g Mousseux', 40);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        90€ → 25g
+       </span>
+<button class="add-btn" onclick="addToCart('Promo', '25g Mousseux', 90);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+       .
+      </p>
+<div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+      </div>
+</div>
+</div>
+</section>
+<section class="category" data-cat="WEEDS">
+<h2>
+     🌿 WEEDS 
+    </h2>
+<div class="product-card" onclick="toggle('Amnesia')">
+<h3>
+      TOP WEED 🇳🇱 - Amnesia 🍭 
+     </h3>
+<div class="details" id="Amnesia" style="display: none;">
+<img alt="amnesia_lemon" class="product-image" loading="lazy" src="images/amnesia.webp"/>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+<p>
+</p>
+<div class="price-line">
+<span class="price-label">
+        20€ → 2g
+       </span>
+<button class="add-btn" onclick="addToCart('TOP WEED - Amnesia', '2g', 20);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        40€ → 4g
+       </span>
+<button class="add-btn" onclick="addToCart('TOP WEED - Amnesia', '4g', 40);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        80€ → 10g
+       </span>
+<button class="add-btn" onclick="addToCart('TOP WEED - Amnesia', '10g', 80);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        180€ → 25g
+       </span>
+<button class="add-btn" onclick="addToCart('TOP WEED - Amnesia', '25g', 180);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        320€ → 50g
+       </span>
+<button class="add-btn" onclick="addToCart('TOP WEED - Amnesia', '50g', 320);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        580€ → 100g
+       </span>
+<button class="add-btn" onclick="addToCart('TOP WEED - Amnesia', '100g', 580);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+       Hybride à dominance sativa, variété mythique originaire des Pays-Bas. Taux de THC élevé (18–21 %), têtes aérées et givrées, aux tons vert clair et pistils orangés.<br/><br/>
+
+Arômes citronnés, épicés et terreux, avec une pointe de douceur florale. Effets très puissants et durables : une euphorie mentale intense et un boost d’énergie cérébrale, parfaits pour rester actif, créatif et de bonne humeur. Une sativa de légende, réservée aux amateurs de sensations fortes.
+      </p>
+<div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+      </div>
+</div>
+</div>
+<div class="product-card" onclick="toggle('OG')">
+<h3>
+      CALI 🇺🇸 - Miracle Alien OG 👽
+     </h3>
+<div class="details" id="OG" style="display: none;">
+<img alt="amnesia_lemon" class="product-image" loading="lazy" src="images/alien.webp"/>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+<p>
+</p>
+<div class="price-line">
+<span class="price-label">
+        20€ → 1g3
+       </span>
+<button class="add-btn" onclick="addToCart('CALI - Alien OG', '1,3g', 20);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        40€ → 3g
+       </span>
+<button class="add-btn" onclick="addToCart('CALI - Alien OG', '3g', 40);updateCartBadge();">
+        Ajouter au panier
+       </button>
+      </div>
+<div class="price-line">
+<span class="price-label">
+        60€ → 4,5g
+       </span>
+<button class="add-btn" onclick="addToCart('CALI - Alien OG', '4,5g', 60);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        120€ → 10g
+       </span>
+<button class="add-btn" onclick="addToCart('CALI - Alien OG', '10g', 120);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        240€ → 25g
+       </span>
+<button class="add-btn" onclick="addToCart('CALI - Alien OG', '25g', 240);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+      Hybride à dominance indica, issu de la lignée MAC (Miracle Alien Cookies) croisée avec une sélection d’OG, réputée pour sa force de frappe. Ses fleurs sont compactes, ultra résineuses, d’un vert foncé éclatant avec des pistils orangés. Son taux de THC élevé, entre 25 et 28 %, en fait une variété redoutable réservée aux habitués.<br/><br/>
+
+Son profil aromatique est intense et complexe, mêlant diesel lourd, citron percutant et crème terreuse. Les effets se font sentir rapidement : une euphorie mentale puissante suivie d’une relaxation corporelle profonde et enveloppante. Une weed de caractère, idéale pour ceux qui recherchent une expérience forte et marquante.
+      </p>
+<div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+       </div>
+</div>
+</div>
+<div class="product-card" onclick="toggle('gel')">
+<h3>
+      CALI 🇺🇸- Gelato 41 🍨
+     </h3>
+<div class="details" id="gel" style="display: none;">
+<img alt="gel" class="product-image" loading="lazy" src="images/41.webp"/>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+<p>
+</p>
+<div class="price-line">
+<span class="price-label">
+        20€ → 1g3
+       </span>
+<button class="add-btn" onclick="addToCart('CALI - Alien OG', '1,3g', 20);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        40€ → 3g
+       </span>
+<button class="add-btn" onclick="addToCart('CALI - Alien OG', '3g', 40);updateCartBadge();">
+        Ajouter au panier
+       </button>
+      </div>
+<div class="price-line">
+<span class="price-label">
+        60€ → 4,5g
+       </span>
+<button class="add-btn" onclick="addToCart('CALI - Alien OG', '4,5g', 60);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        120€ → 10g
+       </span>
+<button class="add-btn" onclick="addToCart('CALI - Alien OG', '10g', 120);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        240€ → 25g
+       </span>
+<button class="add-btn" onclick="addToCart('CALI - Alien OG', '25g', 240);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+      Hybride à légère dominance indica, née du croisement Sunset Sherbet × Thin Mint Girl Scout Cookies, réputée pour sa force de frappe. Avec un taux de THC pouvant grimper jusqu’à 28 %, elle développe des têtes ultra denses, givrées de résine, aux nuances vert vif et pistils orangés.<br/><br/>
+
+Son parfum est crémeux et sucré, relevé de fruits tropicaux et d’une touche terreuse. Les effets sont intenses et immédiats : une euphorie mentale puissante qui évolue rapidement vers une relaxation corporelle marquée et durable. Une variété de caractère, taillée pour les fumeurs expérimentés en quête de sensations fortes.
+      </p>
+<div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+   </div></div></div></section>
+<section class="category" data-cat="HASH">
+     🍫 HASH 
+   <div class="product-card" onclick="toggle('jaune')">
+<h3>JAUNE MOUSSEUX 🇲🇦 - Bandido 🥷</h3>
+<div class="details" id="jaune" style="display: none;">
+<img alt="jaune" class="product-image" loading="lazy" src="images/jaune.webp"/>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+<p>
+</p>
+<div class="price-line">
+<span class="price-label">
+        20€ → 3,5g
+       </span>
+<button class="add-btn" onclick="addToCart('JAUNE MOUSSEUX –', '3,5g', 20);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        50€ → 10g
+       </span>
+<button class="add-btn" onclick="addToCart('JAUNE MOUSSEUX –', '10g', 50);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        100€ → 25g
+       </span>
+<button class="add-btn" onclick="addToCart('JAUNE MOUSSEUX –', '25g', 100);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        180€ → 50g
+       </span>
+<button class="add-btn" onclick="addToCart('JAUNE MOUSSEUX –', '50g', 180);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        350€ → 100g
+       </span>
+<button class="add-btn" onclick="addToCart('JAUNE MOUSSEUX –', '100g', 350);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+       - Hash traditionnel au style mousseux, couleur jaune clair doré, texture souple et légèrement aérée. À l’odeur comme au goût, on retrouve des notes épicées et terreuses, relevées d’une pointe herbacée.
+
+Effets intenses et marqués, avec une détente corporelle rapide et une euphorie mentale apaisante. Un classique.
+      <div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+      </div>
+</p></div>
+</div>
+   <div class="product-card" onclick="toggle('nofarm')">
+<h3>FILTRÉ 🇲🇦 - No Farm ⛰️🗽🍰</h3>
+<div class="details" id="nofarm" style="display: none;">
+<img alt="nofarm" class="product-image" loading="lazy" src="images/nofarm.webp"/>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+<p>
+</p>
+<div class="variety-label">Choisis ta variété :</div><div class="variety-bubble"><button>San Fernando Valley ⛰️</button><button>New York Diesel 🗽</button><button>Florida Cake 🍰</button></div><div class="price-line">
+<span class="price-label">
+        20€ → 2g
+       </span>
+<button class="add-btn" onclick="addToCart('FILTRÉ No Farm –', '2g', 20);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        40€ → 4,5g
+       </span>
+<button class="add-btn" onclick="addToCart('FILTRÉ No Farm –', '4,5g', 40);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+      70€ → 10g
+       </span>
+<button class="add-btn" onclick="addToCart('FILTRÉ No Farm –', '10g', 70);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        150€ → 25g
+       </span>
+<button class="add-btn" onclick="addToCart('FILTRÉ No Farm –', '25g', 150);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        260€ → 50g
+       </span>
+<button class="add-btn" onclick="addToCart('FILTRÉ No Farm –', '50g', 260);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+       - San Fernando Valley ⛰️<br/>
+   Hash filtré artisanal, couleur brun doré, texture grasse et malléable. Issu de têtes de SFV OG (San Fernando Valley OG Kush), hybride à dominance indica.<br/>
+
+Arômes citronnés et terreux, relevés de notes épicées et boisées. Effets puissants et profonds : une relaxation corporelle lourde accompagnée d’une euphorie mentale douce, parfait pour décompresser en fin de journée.
+  <br/><br/>
+   - New York Diesel 🗽<br/> 
+   Hash filtré artisanal, à la texture souple, grasse et malléable, couleur brun doré clair. Issu de têtes de New York Diesel, hybride à dominance sativa, avec un taux de THC autour de 21–23 %.<br/>
+
+Arômes d’agrumes acidulés, pamplemousse et diesel frais, avec une pointe épicée. Effets stimulants et puissants : une euphorie mentale claire et énergisante, idéale pour la journée ou les moments conviviaux.<br/><br/>
+   - Florida Cake 🍰<br/>
+    Hash filtré artisanal, à la texture malléable, grasse et soyeuse, couleur brun doré uniforme. Issu de têtes de Florida Cake, variété hybride à dominance indica.<br/>
+
+Arômes sucrés et crémeux, rappelant un gâteau vanillé aux agrumes, relevés par une touche terreuse. Effets puissants et durables : une relaxation corporelle lourde accompagnée d’une euphorie mentale douce, idéal pour terminer la journée sur une note gourmande et apaisante.
+   
+      <div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+      </div>
+</p></div>
+</div>
+<div class="product-card" onclick="toggle('cake')">
+<h3>DRYSIFT 120u 🇲🇦 - 🍏🍌🍪</h3>
+<div class="details" id="cake" style="display: none;">
+<img alt="chanel" class="product-image" loading="lazy" src="images/cake.webp"/>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+<p>
+</p>
+<div class="variety-label">Choisis ta variété :</div><div class="variety-bubble"><button>Apple Juice 🍏</button><button>Banana Kush 🍌</button><button>Girl Scout Cookies 🍪</button></div><div class="price-line">
+<span class="price-label">
+        20€ → 2g
+       </span>
+<button class="add-btn" onclick="addToCart('120u DRYSIFT –', '2g', 20);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        40€ → 4g
+       </span>
+<button class="add-btn" onclick="addToCart('120u DRYSIFT –', '4g', 40);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        80€ → 10g
+       </span>
+<button class="add-btn" onclick="addToCart('120u DRYSIFT –', '10g', 80);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        160€ → 25g
+       </span>
+<button class="add-btn" onclick="addToCart('120u DRYSIFT –', '25g', 160);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        280€ → 50g
+       </span>
+<button class="add-btn" onclick="addToCart('120u DRYSIFT –', '50g', 280);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+       - Apple juice 🍏<br/>
+   Hybride équilibré, hash tamisé sur 120 microns, texture sableuse et grasse, couleur blonde dorée. 
+   Arômes frais et fruités d’apple juice sucré avec une touche acidulée.<br/> Effets légers mais agréables : une euphorie mentale douce suivie d’une relaxation légère, 
+   parfait pour une session détente sans lourdeur.<br/><br/>
+   - Banana Kush 🍌<br/> 
+   Hybride à dominance indica, hash 120u à la texture malléable, couleur dorée foncée. Saveurs douces et crémeuses de banane mûre et kush terreuse.
+   <br/>Effets relaxants et puissants, avec une détente corporelle profonde et une euphorie apaisante. Idéal pour le soir.<br/><br/>
+   - Girl Scout Cookies 🍪<br/>
+   Hybride à légère dominance indica, hash 120u blond doré, texture sableuse et résineuse. Profil aromatique gourmand de biscuits sucrés, 
+   terre boisée et notes crémeuses. <br/>Effets forts et équilibrés : une euphorie mentale marquée suivie d’une relaxation physique durable. Un classique intemporel revisité en dry sift.
+   
+      <div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+      </div>
+</p></div>
+</div>
+<div class="product-card" onclick="toggle('runtz')">
+<h3>
+      DRYSIFT 90u 🇪🇸 - Three Brothers® 🍇🍧   
+     </h3>
+<div class="details" id="runtz" style="display: none;">
+<img alt="runtz" class="product-image" loading="lazy" src="images/runtz.webp"/>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+<p>
+</p>
+<div class="variety-label">Choisis ta variété :</div><div class="variety-bubble"><button>Gelato x Tk45 🍦</button><button>Dulce de via x Runtz 🍇</button></div><div class="price-line">
+<span class="price-label">
+        20€ → 1,3g
+       </span>
+<button class="add-btn" onclick="addToCart('DRYSIFT 90u', '1,3g', 20);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        40€ → 3g
+       </span>
+<button class="add-btn" onclick="addToCart('DRYSIFT 90u', '3g', 40);updateCartBadge();">
+        Ajouter au panier
+       </button>
+      </div>
+<div class="price-line">
+<span class="price-label">
+        60€ → 5g
+       </span>
+<button class="add-btn" onclick="addToCart('DRYSIFT 90u', '5g', 60);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        110€ → 10g
+       </span>
+<button class="add-btn" onclick="addToCart('DRYSIFT 90u', '10g', 110);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        200€ → 20g 
+       </span>
+<button class="add-btn" onclick="addToCart('DRYSIFT 90u', '20g', 200);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+       - Gelato x Tk45 🍧 <br/>
+Hybride à dominance indica, avec un taux de THC élevé autour de 25 %. Hash tamisé à sec sur maille 90 microns, 
+   d’un blond doré éclatant, texture grasse et fondante. <br/>Arômes crémeux et sucrés, relevés par une touche terreuse et
+   épicée typique de la TK45. Effets très puissants : une euphorie mentale nette suivie d’une relaxation corporelle lourde et durable.
+   <br/><br/>- Dulce de via x Runtz 🍇
+   <br/>Hybride équilibré (légère dominante indica), taux de THC avoisinant 26 %. Hash premium 90 microns, doré et sableux,
+   à la texture grasse et malléable. Saveurs gourmandes de raisin sucré, bonbon crémeux et notes florales. <br/>Effets forts et complets : 
+   une euphorie joyeuse et marquée suivie d’une relaxation douce et profonde, idéal pour les amateurs de hash intense et savoureux.
+      </p>
+      </p>
+<div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       x
+      </div>
+</div>
+</div>
+<div class="product-card" onclick="toggle('drytek')">
+<h3>
+          ⭐️DRY PREMIUM 90u 🇪🇸 - Drytech x Goldenfarm® 2k25 🍨🍊🧃🍒
+     </h3>
+<div class="details" id="drytek" style="display: none;">
+<img alt="drytek" class="product-image" loading="lazy" src="images/drytek.webp"/>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+<p>
+</p>
+<div class="variety-label">Choisis ta variété :</div><div class="variety-bubble"><button>Ipanema 🍨</button><button>Orange Cane 🍊</button><button>Crasher Acai 🧃</button><button>Tropicana Cherry 🍒</button></div><div class="price-line">
+<span class="price-label">
+        20€ → 1,2g
+       </span>
+<button class="add-btn" onclick="addToCart('PREMIUM 90u', '1,3g', 20);updateCartBadge();">
+        Ajouter au panier
+       </button>
+      </div>
+<div class="price-line">
+<span class="price-label">
+        40€ → 2,5g
+       </span>
+<button class="add-btn" onclick="addToCart('PREMIUM 90u', '2,5g', 40);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        60€ → 4g
+       </span>
+<button class="add-btn" onclick="addToCart('PREMIUM 90u', '4g', 60);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        130€ → 10g
+       </span>
+<button class="add-btn" onclick="addToCart('PREMIUM 90u', '10g', 130);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        220€ → 20g 
+       </span>
+<button class="add-btn" onclick="addToCart('PREMIUM 90u', '20g', 220);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+
+- Ipanema 🍨<br/> Hybride indica dominante, avec un THC élevé à 25 %. Extraction 90 microns d’une pureté exceptionnelle,
+   au blond doré éclatant et à la texture grasse et fondante. Arômes raffinés de raisin sucré, vanille crémeuse et fruits tropicaux, 
+   d’une richesse aromatique rare. <br/>Effets très puissants : une euphorie mentale intense qui laisse place à une relaxation profonde et durable. 
+   Un hash d’exception, pensé pour les palais exigeants.
+   <br/><br/>- Orange Cane 🍊<br/> Hybride sativa dominante, taux de THC autour de 26 %. Hash clair et soyeux, malléable et gras, gage de pureté. Saveurs explosives d’orange fraîche pressée et citron zesté, 
+   avec une douceur sucrée en arrière-plan. <br/>Effets stimulants et percutants : montée euphorique immédiate, boost d’énergie et de créativité. Un produit premium unique, idéal pour les amateurs de sativas 
+   puissantes.
+   <br/><br/>- Crasher Acai 🧃<br/>Hybride indica dominante, THC pouvant atteindre 25 %. Hash doré intense, texture grasse et fondante, d’une pureté rare grâce au tamisage 90u. Arômes complexes de baies açaí,
+   fruits rouges et crème sucrée, qui explosent en bouche. <br/>Effets lourds et durables : une montée mentale énergisante qui se transforme en relaxation corporelle écrasante. Une véritable référence haut de gamme pour connaisseurs avertis.
+   <br/> <br/>- Tropicana Cherry 🍒<br/> Hybride sativa dominante (~60/40), THC autour de 26 %. Hash blond lumineux, texture malléable et huileuse, au rendement exceptionnel. Arômes sucrés et acidulés de cerise mûre,
+   agrumes et cookies tropicaux, aussi intenses qu’inoubliables. <br/>Effets énergisants et puissants : une euphorie claire et joyeuse, avec une bonne humeur durable. Un must-have rare, réservé aux amateurs de produits premium.
+
+      </p>
+<div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+      </div>
+</div>
+</div>
+<div class="product-card" onclick="toggle('sheesh')">
+<h3>
+       FINE FROZEN 🇺🇸 - Sheesh® - Gushmintz 🥶🍬
+     </h3>
+<div class="details" id="sheesh" style="display: none;">
+<img alt="chanel" class="product-image" loading="lazy" src="images/sheesh.webp"/>
+<img alt="chanel" class="product-image" loading="lazy" src="images/sheesh2.webp"/>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+<p>
+</p>
+<div class="price-line">
+<span class="price-label">
+        30€ → 1g
+       </span>
+<button class="add-btn" onclick="addToCart('FROZEN SHEESH –', '1g', 30);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        90€ → 3,5g
+       </span>
+<button class="add-btn" onclick="addToCart('FROZEN SHEESH –', '3,5g', 90);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        160€ → 6g
+       </span>
+<button class="add-btn" onclick="addToCart('FROZEN SHEESH –', '6g', 160);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<div class="price-line">
+<span class="price-label">
+        250€ → 10g
+       </span>
+<button class="add-btn" onclick="addToCart('FROZEN SHEESH –', '10g', 250);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+       🌟 Import Exclusif USA – Produit Unique 🌟<br/><br/>
+
+Fine Frozen 🇺🇸 – Sheesh® – Gushmintz 🥶🍬<br/><br/>
+
+Un hash introuvable ailleurs dans la région, directement importé des États-Unis et signé par la célèbre maison Sheesh®. 
+   Réalisé en fresh frozen, il conserve toute la richesse des terpènes pour une expérience exceptionnelle. Hybride à dominance indica, 
+   taux de THC entre 29 et 32 %, texture blonde claire, grasse et fondante.<br/><br/>
+
+Arômes explosifs de bonbon fruité, menthe fraîche et gaz, qui tapissent le palais dès la première bouffée. Effets ultra puissants et raffinés 
+   : une euphorie immédiate suivie d’une relaxation corporelle intense.<br/><br/>
+👉 Une véritable rareté à saisir, réservée aux vrais connaisseurs.
+      </p>
+<div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+      </div>
+</div>
+</div>
+</section>
+<section class="category" data-cat="PACKS">
+<h2>
+     💰 LES PACKS
+    </h2>
+<div class="product-card" onclick="toggle('pack')">
+<h3>
+      🧐 PACK TEST
+     </h3>
+<div class="details" id="pack" style="display: none;">
+<p>
+       - 10€ de chaque produit 
+      </p>
+<div class="price-line">
+<span class="price-label">
+</span>
+<button class="add-btn" onclick="addToCart('PACK TEST', 'pack test', 10);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+</p>
+<div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+      </div>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+</div>
+</div>
+<div class="product-card" onclick="toggle('hash')">
+<h3>
+      🍫 PACK HASH
+     </h3>
+<div class="details" id="hash" style="display: none;">
+<p>
+       - 3,5g Jaune 🥷 <br/>- 2g Drysift 120u 🍏🍌🍪 <br/>- 2g FILTRÉ - No Farm ⛰️🗽🍰 <br/>- 1,3g DRY 90u - Three Brothers 🍇🍧 <br/>- 1,3g DRY PREMIUM 90u - Drytech x Goldenfarm® 2k25 🍨🍊🧃🍒 <br/><br/>Variétées au choix<br/><br/>Prix : 90€ au lieu de 100€ ✓
+      </p>
+<div class="price-line">
+<span class="price-label">90€</span>
+</span>
+<button class="add-btn" onclick="addToCart('PACK HASH', 'pack hash', 90);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+</p>
+<div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+      </div>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+</div>
+</div>
+<div class="product-card" onclick="toggle('pkdry')">
+<h3>
+      🍫 PACK MEGA DRY
+     </h3>
+<div class="details" id="pkdry" style="display: none;">
+<p>
+       - 20€ de chaque variété de Drytech 🍨🍊🧃🍒 <br/>- 20€ de chaque variété 120u 🍏🍌🍪 <br/>- 20€ de chaque variété Three Brothers 🍇🍧<br/><br/> Au total 9 variétés de dry ! <br/><br/>Pour 160€ au lieu de 180€ ✓<br/><br/>
+      </p>
+<div class="price-line">
+<span class="price-label">160€</span>
+</span>
+<button class="add-btn" onclick="addToCart('PACK MEGA DRY', 'pack mega dry', 160€);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+</p>
+<div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+      </div>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+</div>
+</div>
+<div class="product-card" onclick="toggle('weed')">
+<h3>
+      🌿 PACK WEED
+     </h3>
+<div class="details" id="weed" style="display: none;">
+<p>
+<br/>- 3g Amnesia 🍭 <br/>- 2g Alien 👽 <br/>- 2g Gelato 41 🍨 <br/><br/>Prix : 70€ au lieu de 80€ ✓
+      </p>
+<div class="price-line">
+<span class="price-label">70€</span>
+<button class="add-btn" onclick="addToCart('PACK WEED', 'pack weed', 70€);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+</p>
+<div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+      </div>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+</div>
+</div>
+<div class="product-card" onclick="toggle('premium')">
+<h3>
+      🧊⚡ PACK PREMIUM
+     </h3>
+<div class="details" id="premium" style="display: none;">
+<p>
+       - 5g Cali 👽🍨<br/>- 5g Dry premium 🍨🍊🧃🍒 <br/><br/>Prix : 120€ au lieu de 130€ ✓
+      </p>
+<div class="price-line">
+<span class="price-label">120€</span>
+</span>
+<button class="add-btn" onclick="addToCart('PACK PREMIUM', 'pack premium', 120);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+</p>
+<div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+      </div>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+</div>
+</div>
+<div class="product-card" onclick="toggle('LE BIG PACK')">
+<h3>
+      💰 LE BIG PACK
+     </h3>
+<div class="details" id="LE BIG PACK" style="display: none;">
+<p>
+       - 10g Filtré No Farm ⛰️🗽🍰 <br/>- 10g Amnesia 🍭<br/>- 5g Dry premium 🍨🍊🧃🍒<br/>- 5g Cali 👽🍨 <br/><br/>Prix : 270€ au lieu de 300€ ✓
+      </p>
+<div class="price-line">
+<span class="price-label">270€</span>
+</span>
+<button class="add-btn" onclick="addToCart('LE BIG PACK', 'LE BIG PACK', 270);updateCartBadge();">
+        Ajouter au panier
+       </button>
+</div>
+<p class="description" style="display: block; font-size: 13px; color: #bbb; margin-top: 8px; font-style: italic;">
+</p>
+<div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
+       ✖
+      </div>
+<p style="font-size: 12px; color: #ccc; margin-top: 8px; font-style: italic;">
+</p>
+</div>
+</div>
+</section>
+</main>
+<footer>
+</footer>
+<script src="js/script.js">
+
+// 🔔 Notification visuelle + animation vers panier
+function showNotifier(text = "Produit ajouté au panier", event = null) {
+  // notification centrale
+  const notif = document.getElementById("notifier");
+  if (notif) {
+    notif.textContent = text;
+    notif.style.display = "block";
+    setTimeout(() => notif.style.display = "none", 1800);
+  }
+
+  // animation vers le panier
+  try {
+    const cartBtn = document.querySelector('#cart-badge') || document.querySelector('#cart-button') || document.querySelector('.cart-btn');
+    if (!cartBtn || !event) return;
+    const fly = document.createElement('div');
+    fly.className = 'fly-anim';
+    fly.textContent = '+1';
+    document.body.appendChild(fly);
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const endRect = cartBtn.getBoundingClientRect();
+    const endX = endRect.left + endRect.width / 2;
+    const endY = endRect.top + endRect.height / 2;
+
+    fly.style.left = startX + 'px';
+    fly.style.top = startY + 'px';
+
+    requestAnimationFrame(() => {
+      fly.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.2)`;
+      fly.style.opacity = '0';
+    });
+
+    setTimeout(() => fly.remove(), 800);
+  } catch(e){}
+}
+
+</script>
+<div id="cart" style="z-index: 9999; transition: all 0.3s ease">
+</div>
+<div id="quick-links">
+<a href="https://t.me/peufcommandes" style="background-color: rgba(51, 51, 51, 0.7);padding: 10px;border-radius: 50%;display: flex;align-items: center;justify-content: center;" target="_blank">
+<img alt="Telegram" loading="lazy" src="images/IMG_1414.png" style="width:24px;height:24px;border-radius:6px;"/>
+</a>
+<a href="https://callup.luffa.im/c/NjR2vPTjMqH" style="background-color: rgba(51, 51, 51, 0.7);padding: 10px;border-radius: 50%;display: flex;align-items: center;justify-content: center;" target="_blank">
+<img alt="Luffa" loading="lazy" src="images/luffa.jpg" style="width:24px;height:24px;border-radius:6px;"/>
+</a>
+<a href="javascript:void(0);" onclick="toggleCartVisibility()" style="background-color: rgba(51, 51, 51, 0.7); padding: 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white;; position: relative;">
+    🛒
+    <span id="cart-badge" style="position:absolute;top:-6px;right:-6px;background:red;color:white;border-radius:50%;padding:2px 6px;font-size:12px;font-weight:bold;">
+     0
+    </span>
+</a>
+</div>
+
+<div id="scrollTopBtn" onclick="scrollToTop()">
+   ↥
+  </div>
+
+<script>
+   function showCartText() {
+  const cartBtn = document.querySelector('#quick-links a[onclick*="toggleCartVisibility"]');
+  if (!document.getElementById("cart-text")) {
+    const span = document.createElement("span");
+    span.id = "cart-text";
+    span.textContent = " Voir mon panier";
+    span.style.marginLeft = "6px";
+    span.style.color = "#fff";
+    span.style.fontSize = "13px";
+    cartBtn.appendChild(span);
+    setTimeout(() => {
+      span.remove();
+    }, 2500);
+  }
+}
+  
+// 🔔 Notification visuelle + animation vers panier
+function showNotifier(text = "Produit ajouté au panier", event = null) {
+  // notification centrale
+  const notif = document.getElementById("notifier");
+  if (notif) {
+    notif.textContent = text;
+    notif.style.display = "block";
+    setTimeout(() => notif.style.display = "none", 1800);
+  }
+
+  // animation vers le panier
+  try {
+    const cartBtn = document.querySelector('#cart-badge') || document.querySelector('#cart-button') || document.querySelector('.cart-btn');
+    if (!cartBtn || !event) return;
+    const fly = document.createElement('div');
+    fly.className = 'fly-anim';
+    fly.textContent = '+1';
+    document.body.appendChild(fly);
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const endRect = cartBtn.getBoundingClientRect();
+    const endX = endRect.left + endRect.width / 2;
+    const endY = endRect.top + endRect.height / 2;
+
+    fly.style.left = startX + 'px';
+    fly.style.top = startY + 'px';
+
+    requestAnimationFrame(() => {
+      fly.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.2)`;
+      fly.style.opacity = '0';
+    });
+
+    setTimeout(() => fly.remove(), 800);
+  } catch(e){}
+}
+
+</script>
+<script>
+   // 🔢 Mise à jour du badge du panier
+function updateCartBadge() {
+  const badge = document.getElementById("cart-badge");
+  if (!badge) return;
+  badge.textContent = cart.length;
+  badge.style.display = cart.length > 0 ? "inline-block" : "none";
+}
+const originalAddToCart = addToCart;
+addToCart = function(product, quantity, price) {
+  originalAddToCart(product, quantity, price);
+  updateCartBadge();
+};
+const originalRemoveFromCart = removeFromCart;
+removeFromCart = function(index) {
+  originalRemoveFromCart(index);
+  updateCartBadge();
+};
+window.onload = function() {
+  /* restoreCart call removed */updateCartBadge();
+};
+  
+// 🔔 Notification visuelle + animation vers panier
+function showNotifier(text = "Produit ajouté au panier", event = null) {
+  // notification centrale
+  const notif = document.getElementById("notifier");
+  if (notif) {
+    notif.textContent = text;
+    notif.style.display = "block";
+    setTimeout(() => notif.style.display = "none", 1800);
+  }
+
+  // animation vers le panier
+  try {
+    const cartBtn = document.querySelector('#cart-badge') || document.querySelector('#cart-button') || document.querySelector('.cart-btn');
+    if (!cartBtn || !event) return;
+    const fly = document.createElement('div');
+    fly.className = 'fly-anim';
+    fly.textContent = '+1';
+    document.body.appendChild(fly);
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const endRect = cartBtn.getBoundingClientRect();
+    const endX = endRect.left + endRect.width / 2;
+    const endY = endRect.top + endRect.height / 2;
+
+    fly.style.left = startX + 'px';
+    fly.style.top = startY + 'px';
+
+    requestAnimationFrame(() => {
+      fly.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.2)`;
+      fly.style.opacity = '0';
+    });
+
+    setTimeout(() => fly.remove(), 800);
+  } catch(e){}
+}
+
+</script>
+<script>
+   function filterCategory(cat) {
+  document.querySelectorAll('section.category').forEach(sec => {
+    if (cat === 'all' || sec.dataset.cat === cat) {
+      sec.style.display = '';
+    } else {
+      sec.style.display = 'none';
+    }
+  });
+}
+  
+// 🔔 Notification visuelle + animation vers panier
+function showNotifier(text = "Produit ajouté au panier", event = null) {
+  // notification centrale
+  const notif = document.getElementById("notifier");
+  if (notif) {
+    notif.textContent = text;
+    notif.style.display = "block";
+    setTimeout(() => notif.style.display = "none", 1800);
+  }
+
+  // animation vers le panier
+  try {
+    const cartBtn = document.querySelector('#cart-badge') || document.querySelector('#cart-button') || document.querySelector('.cart-btn');
+    if (!cartBtn || !event) return;
+    const fly = document.createElement('div');
+    fly.className = 'fly-anim';
+    fly.textContent = '+1';
+    document.body.appendChild(fly);
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const endRect = cartBtn.getBoundingClientRect();
+    const endX = endRect.left + endRect.width / 2;
+    const endY = endRect.top + endRect.height / 2;
+
+    fly.style.left = startX + 'px';
+    fly.style.top = startY + 'px';
+
+    requestAnimationFrame(() => {
+      fly.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.2)`;
+      fly.style.opacity = '0';
+    });
+
+    setTimeout(() => fly.remove(), 800);
+  } catch(e){}
+}
+
+</script>
+<script>
+   document.querySelectorAll('.product-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.product-card').forEach(c => c.classList.remove('open'));
+    card.classList.add('open');
+  });
+});
+  
+// 🔔 Notification visuelle + animation vers panier
+function showNotifier(text = "Produit ajouté au panier", event = null) {
+  // notification centrale
+  const notif = document.getElementById("notifier");
+  if (notif) {
+    notif.textContent = text;
+    notif.style.display = "block";
+    setTimeout(() => notif.style.display = "none", 1800);
+  }
+
+  // animation vers le panier
+  try {
+    const cartBtn = document.querySelector('#cart-badge') || document.querySelector('#cart-button') || document.querySelector('.cart-btn');
+    if (!cartBtn || !event) return;
+    const fly = document.createElement('div');
+    fly.className = 'fly-anim';
+    fly.textContent = '+1';
+    document.body.appendChild(fly);
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const endRect = cartBtn.getBoundingClientRect();
+    const endX = endRect.left + endRect.width / 2;
+    const endY = endRect.top + endRect.height / 2;
+
+    fly.style.left = startX + 'px';
+    fly.style.top = startY + 'px';
+
+    requestAnimationFrame(() => {
+      fly.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.2)`;
+      fly.style.opacity = '0';
+    });
+
+    setTimeout(() => fly.remove(), 800);
+  } catch(e){}
+}
+
+</script>
+<script>
+   function closeDescription(closeBtn) {
+  const productCard = closeBtn.closest('.product-card');
+  if (!productCard) return;
+
+  const rect = productCard.getBoundingClientRect();
+  const absoluteTop = rect.top + window.scrollY - 100;
+  window.scrollTo({ top: absoluteTop, behavior: "smooth" });
+
+  setTimeout(() => {
+    const details = closeBtn.closest('.details');
+    if (details) {
+      details.style.display = "none";
+    }
+  }, 300);
+}
+  
+// 🔔 Notification visuelle + animation vers panier
+function showNotifier(text = "Produit ajouté au panier", event = null) {
+  // notification centrale
+  const notif = document.getElementById("notifier");
+  if (notif) {
+    notif.textContent = text;
+    notif.style.display = "block";
+    setTimeout(() => notif.style.display = "none", 1800);
+  }
+
+  // animation vers le panier
+  try {
+    const cartBtn = document.querySelector('#cart-badge') || document.querySelector('#cart-button') || document.querySelector('.cart-btn');
+    if (!cartBtn || !event) return;
+    const fly = document.createElement('div');
+    fly.className = 'fly-anim';
+    fly.textContent = '+1';
+    document.body.appendChild(fly);
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const endRect = cartBtn.getBoundingClientRect();
+    const endX = endRect.left + endRect.width / 2;
+    const endY = endRect.top + endRect.height / 2;
+
+    fly.style.left = startX + 'px';
+    fly.style.top = startY + 'px';
+
+    requestAnimationFrame(() => {
+      fly.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.2)`;
+      fly.style.opacity = '0';
+    });
+
+    setTimeout(() => fly.remove(), 800);
+  } catch(e){}
+}
+
+</script>
+<script>
+   const originalAddToCart = addToCart;
+addToCart = function(product, quantity, price) {
+  originalAddToCart(product, quantity, price);
+
+  // Cherche le bouton qui a été cliqué
+  const buttons = document.querySelectorAll("button");
+  let targetButton = null;
+  buttons.forEach(btn => {
+    if (btn.innerText.includes(quantity) && btn.onclick?.toString().includes(product)) {
+      targetButton = btn;
+    }
+  });
+
+  if (targetButton) {
+    const productCard = targetButton.closest(".product-card");
+    if (productCard) {
+      const rect = productCard.getBoundingClientRect();
+      const top = rect.top + window.scrollY - 100;
+      window.scrollTo({ top: top, behavior: "smooth" });
+    }
+
+    // Fermer la tuile
+    const details = targetButton.closest(".details");
+    if (details) {
+      setTimeout(() => { details.style.display = "none"; }, 100);
+    }
+
+    // Masquer la croix si elle existe
+    const closeBtn = details?.querySelector(".close-desc-btn");
+    if (closeBtn) closeBtn.style.display = "none";
+  }
+};
+  
+// 🔔 Notification visuelle + animation vers panier
+function showNotifier(text = "Produit ajouté au panier", event = null) {
+  // notification centrale
+  const notif = document.getElementById("notifier");
+  if (notif) {
+    notif.textContent = text;
+    notif.style.display = "block";
+    setTimeout(() => notif.style.display = "none", 1800);
+  }
+
+  // animation vers le panier
+  try {
+    const cartBtn = document.querySelector('#cart-badge') || document.querySelector('#cart-button') || document.querySelector('.cart-btn');
+    if (!cartBtn || !event) return;
+    const fly = document.createElement('div');
+    fly.className = 'fly-anim';
+    fly.textContent = '+1';
+    document.body.appendChild(fly);
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const endRect = cartBtn.getBoundingClientRect();
+    const endX = endRect.left + endRect.width / 2;
+    const endY = endRect.top + endRect.height / 2;
+
+    fly.style.left = startX + 'px';
+    fly.style.top = startY + 'px';
+
+    requestAnimationFrame(() => {
+      fly.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.2)`;
+      fly.style.opacity = '0';
+    });
+
+    setTimeout(() => fly.remove(), 800);
+  } catch(e){}
+}
+
+</script>
+
+<!-- Delivery hours modal -->
+<div aria-labelledby="delivery-title" aria-modal="true" id="delivery-modal" role="dialog" style="
+  position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 10000;
+">
+<div id="delivery-backdrop" style="position:absolute; inset:0; background: rgba(0,0,0,.6);"></div>
+<div style="position: relative; background: #111; color: #fff; border: 1px solid #333; border-radius: 12px; padding: 18px 18px 14px; width: min(92%, 420px); box-shadow: 0 10px 30px rgba(0,0,0,.5);">
+<h3 id="delivery-title" style="margin: 0 0 8px 0; font-weight: 800; font-size: 18px;">🕔 HORAIRES DE LIVRAISON :</h3>
+<p style="margin: 0 0 14px 0; font-size: 16px;"> Tout les jours 18h – 23h 🚗<br/>Alentours du Havre sur demande 📲</p>
+<div style="text-align: right;">
+<button class="add-btn" id="delivery-ok" style="padding: 8px 12px; border-radius: 10px;">OK</button>
+</div>
+</div>
+</div>
+<script>
+  (function(){
+    function openModal(){
+      var m = document.getElementById('delivery-modal');
+      if (!m) return;
+      m.style.display = 'flex';
+      // Prevent background scroll while open
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      // Focus the OK button for accessibility
+      setTimeout(function(){
+        var ok = document.getElementById('delivery-ok');
+        if (ok) ok.focus();
+      }, 0);
+    }
+    function closeModal(){
+      var m = document.getElementById('delivery-modal');
+      if (!m) return;
+      m.style.display = 'none';
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('DOMContentLoaded', function(){
+      // Show on first load, always
+      openModal();
+      var ok = document.getElementById('delivery-ok');
+      var backdrop = document.getElementById('delivery-backdrop');
+      if (ok) ok.addEventListener('click', closeModal);
+      if (backdrop) backdrop.addEventListener('click', closeModal);
+      // Allow ESC to close
+      document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape') closeModal();
+      });
+    });
+  })();
+
+// 🔔 Notification visuelle + animation vers panier
+function showNotifier(text = "Produit ajouté au panier", event = null) {
+  // notification centrale
+  const notif = document.getElementById("notifier");
+  if (notif) {
+    notif.textContent = text;
+    notif.style.display = "block";
+    setTimeout(() => notif.style.display = "none", 1800);
+  }
+
+  // animation vers le panier
+  try {
+    const cartBtn = document.querySelector('#cart-badge') || document.querySelector('#cart-button') || document.querySelector('.cart-btn');
+    if (!cartBtn || !event) return;
+    const fly = document.createElement('div');
+    fly.className = 'fly-anim';
+    fly.textContent = '+1';
+    document.body.appendChild(fly);
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const endRect = cartBtn.getBoundingClientRect();
+    const endX = endRect.left + endRect.width / 2;
+    const endY = endRect.top + endRect.height / 2;
+
+    fly.style.left = startX + 'px';
+    fly.style.top = startY + 'px';
+
+    requestAnimationFrame(() => {
+      fly.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.2)`;
+      fly.style.opacity = '0';
+    });
+
+    setTimeout(() => fly.remove(), 800);
+  } catch(e){}
+}
+
+</script>
+<style>
+.variety-bubble {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 5px 0 10px;
+}
+.variety-bubble button {
+  background: #222;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8em;
+}
+.variety-bubble button.active {
+  background: #4caf50;
+  border-color: #4caf50;
+}
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+function mapBaseName(name){
+  const n = (name || "").toLowerCase();
+  if (n.includes('dry premium')) return 'Premium 90u D&G';
+  if (n.includes('jaune mousseux')) return 'Jaune Mousseux - Bandido';
+  return name || 'Produit';
+}
+
+  // Gestion du choix de variété
+  document.querySelectorAll(".variety-bubble button").forEach(btn => {
+    btn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      const wrap = this.parentElement;
+      wrap.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      this.classList.add("active");
+    });
+  });
+
+  // Gestion des boutons "Ajouter au panier"
+  document.querySelectorAll(".price-line .add-btn").forEach(btn => {
+    if (btn.getAttribute("onclick")) btn.setAttribute("onclick", "");
+
+    btn.addEventListener("click", function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const line = this.closest(".price-line");
+      const labelText = (line.querySelector(".price-label")?.textContent || "").trim();
+
+      const priceMatch = labelText.match(/(\d+)\s*€/);
+      const qtyPart = labelText.split("→")[1]?.trim() || "";
+
+      const priceNum = priceMatch ? Number(priceMatch[1]) : 0;
+
+      const card = this.closest(".product-card");
+      const titleEl = card.querySelector("h3 h2, h3, h2");
+      const rawName = (titleEl ? titleEl.textContent : "").replace(/\s+/g, " ").trim();
+      const baseName = mapBaseName(rawName) || rawName || "Produit";
+
+      const variety = card.querySelector(".variety-bubble .active")?.textContent?.trim();
+      const fullName = variety ? `${baseName} - ${variety}` : baseName;
+
+      addToCart(fullName, qtyPart, priceNum);
+      if (typeof updateCartBadge === "function") updateCartBadge();
+    });
+  });
+});
+
+// 🔔 Notification visuelle + animation vers panier
+function showNotifier(text = "Produit ajouté au panier", event = null) {
+  // notification centrale
+  const notif = document.getElementById("notifier");
+  if (notif) {
+    notif.textContent = text;
+    notif.style.display = "block";
+    setTimeout(() => notif.style.display = "none", 1800);
+  }
+
+  // animation vers le panier
+  try {
+    const cartBtn = document.querySelector('#cart-badge') || document.querySelector('#cart-button') || document.querySelector('.cart-btn');
+    if (!cartBtn || !event) return;
+    const fly = document.createElement('div');
+    fly.className = 'fly-anim';
+    fly.textContent = '+1';
+    document.body.appendChild(fly);
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const endRect = cartBtn.getBoundingClientRect();
+    const endX = endRect.left + endRect.width / 2;
+    const endY = endRect.top + endRect.height / 2;
+
+    fly.style.left = startX + 'px';
+    fly.style.top = startY + 'px';
+
+    requestAnimationFrame(() => {
+      fly.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.2)`;
+      fly.style.opacity = '0';
+    });
+
+    setTimeout(() => fly.remove(), 800);
+  } catch(e){}
+}
+
+</script>
+
+<style>
+#cart {
+  background: #111;
+  color: white;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  max-width: 400px;
+  margin: 10px auto;
+  line-height: 1.4;
+}
+.cart-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #333;
+  padding: 6px 0;
+  font-size: 15px;
+  flex-wrap: nowrap;
+}
+.cart-line span:first-child{
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cart-line span.price{
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.cart-line .remove-btn {
+  background: none;
+  border: none;
+  color: #ff6666;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 5px;
+}
+.cart-line .remove-btn:hover { color: #ff9999; }
+</style>
+
+<script>
+// === Panier unifié (clean) — n'affecte pas le reste du site ===
+let cart = [];
+let cartVisible = false;
+let lastActionAt = 0;
+const COOLDOWN_MS = 3000;
+
+// ⚙️  Cooldown anti-spam
+function isCoolingDown(){
+  const now = Date.now();
+  if (now - lastActionAt < COOLDOWN_MS) return true;
+  lastActionAt = now;
+  return false;
+}
+
+// 🔢 Mise à jour du badge du panier
+function updateCartBadge(){
+  const badge = document.getElementById("cart-badge");
+  if (!badge) return;
+  badge.textContent = cart.length;
+  badge.style.display = cart.length > 0 ? "inline-block" : "none";
+}
+
+// 🛒 Ajouter un produit au panier
+function addToCart(product, quantity, price){
+  // Nettoyage du nom (suppression des emojis avant ajout)
+  product = product.replace(/[\u{1F300}-\u{1FAFF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
+
+  if (isCoolingDown()) return;
+  cart.push({ product, quantity, price });
+  updateCartBadge();
+  if (cartVisible) updateCartUI();
+  showNotifier('Produit ajouté au panier', event);
+}
+
+// ❌ Retirer un produit du panier
+function removeFromCart(index){
+  cart.splice(index, 1);
+  updateCartBadge();
+  if (cartVisible) updateCartUI();
+}
+
+// 🧩 Rafraîchir l'affichage du panier
+function updateCartUI(){
+  const cartDiv = document.getElementById("cart");
+  if (!cartDiv || !cartVisible) return;
+
+  cartDiv.innerHTML = '<h3>🛒 Panier</h3>';
+  let total = 0;
+
+  cart.forEach((item, idx) => {
+    const line = document.createElement('div');
+    line.className = 'cart-line';
+    line.innerHTML = `
+      <span>${item.product} – ${item.quantity}</span>
+      <span class="price">${item.price}€</span>
+      <button class="remove-btn" onclick="removeFromCart(${idx})" aria-label="Supprimer">×</button>
+    `;
+    cartDiv.appendChild(line);
+    total += Number(item.price) || 0;
+  });
+
+  const totalP = document.createElement('p');
+  totalP.innerHTML = `<strong>Total : ${total}€</strong>`;
+  totalP.style.marginTop = "10px";
+  cartDiv.appendChild(totalP);
+
+  const warn = document.createElement('p');
+  warn.style.fontSize = "14px";
+  warn.style.color = "#ccc";
+  warn.textContent = "⚠️ Exemple d'adresse complète : 75 rue de Paris 76600";
+  cartDiv.appendChild(warn);
+
+  if (cart.length > 0) {
+    const btn = document.createElement('button');
+    btn.textContent = "Valider la commande";
+    btn.style.margin = "10px auto 0";
+    btn.style.display = "block";
+    btn.onclick = sendCart;
+    cartDiv.appendChild(btn);
+  }
+}
+
+// 👁️  Afficher / masquer le panier
+function toggleCartVisibility(){
+  const cartEl = document.getElementById("cart");
+  if (!cartEl) return;
+  cartVisible = !cartVisible;
+  cartEl.style.display = cartVisible ? "block" : "none";
+  if (cartVisible) updateCartUI();
+}
+
+// 💬 Envoi de la commande sur Telegram
+function sendCart(){
+  if (cart.length === 0) return;
+  if (isCoolingDown()) return;
+  let message = " Yo bro tranquille ? Tu peux me livrer ça stp?\n\n";
+  let total = 0;
+  cart.forEach(item => {
+    message += `· ${item.product} – ${item.quantity} – ${item.price}€\n`;
+    total += Number(item.price) || 0;
+  });
+  message += `\nTotal : ${total}€\n`;
+  let address = prompt("Entrez votre adresse complète :");
+  if (!address || address.trim().length < 5) {
+    
+    return;
+  }
+  message += `\nAdresse : ${address.trim()}`;
+  const link = "https://t.me/peufcommandes?text=" + encodeURIComponent(message);
+  try {
+    if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.openTelegramLink === "function") {
+      window.Telegram.WebApp.openTelegramLink(link);
+    } else {
+      window.location.href = link;
+    }
+  } catch(e) {
+    window.location.href = link;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  updateCartBadge();
+});
+
+// 🔔 Notification visuelle + animation vers panier
+function showNotifier(text = "Produit ajouté au panier", event = null) {
+  // notification centrale
+  const notif = document.getElementById("notifier");
+  if (notif) {
+    notif.textContent = text;
+    notif.style.display = "block";
+    setTimeout(() => notif.style.display = "none", 1800);
+  }
+
+  // animation vers le panier
+  try {
+    const cartBtn = document.querySelector('#cart-badge') || document.querySelector('#cart-button') || document.querySelector('.cart-btn');
+    if (!cartBtn || !event) return;
+    const fly = document.createElement('div');
+    fly.className = 'fly-anim';
+    fly.textContent = '+1';
+    document.body.appendChild(fly);
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const endRect = cartBtn.getBoundingClientRect();
+    const endX = endRect.left + endRect.width / 2;
+    const endY = endRect.top + endRect.height / 2;
+
+    fly.style.left = startX + 'px';
+    fly.style.top = startY + 'px';
+
+    requestAnimationFrame(() => {
+      fly.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.2)`;
+      fly.style.opacity = '0';
+    });
+
+    setTimeout(() => fly.remove(), 800);
+  } catch(e){}
+}
+
+</script>
+
+</body>
+</html>
