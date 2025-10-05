@@ -1866,5 +1866,27 @@ function showNotifier(text = "Produit ajouté au panier", event = null) {
 }
 
 </script>
+
+<!-- Security: client-side anti-spam (disable add buttons for 3s after click) -->
+<script>
+(function(){
+  const cooldownMs = 3000;
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest && e.target.closest('.add-btn');
+    if (!btn) return;
+    if (btn.dataset._cooldown === '1') {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    btn.dataset._cooldown = '1';
+    try { btn.disabled = true; btn.style.opacity = '0.6'; } catch(e) {}
+    setTimeout(()=>{
+      try { btn.removeAttribute('data-_cooldown'); btn.disabled = false; btn.style.opacity = ''; } catch(e){}
+    }, cooldownMs);
+  }, true);
+})();
+</script>
+
 </body>
 </html>
