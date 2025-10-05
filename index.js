@@ -5,6 +5,41 @@ const crypto = require("crypto");
 const path = require("path");
 require("dotenv").config();
 
+// === Security helpers added: cooldowns and rate-limiting ===
+const userCooldowns = new Map(); // userId -> timestamp (ms)
+const orderRateLimits = new Map(); // ip -> {count, firstTs}
+
+// simple helper to enforce cooldown per user (ms)
+function checkUserCooldown(userId, cooldownMs = 3000) {
+  const now = Date.now();
+  if (!userId) return false;
+  if (userCooldowns.has(userId) && (now - userCooldowns.get(userId) < cooldownMs)) {
+    return false;
+  }
+  userCooldowns.set(userId, now);
+  return true;
+}
+
+// simple per-IP rate limiter: max 5 requests per 60s
+function checkRateLimit(ip, maxRequests = 5, windowMs = 60 * 1000) {
+  if (!ip) return false;
+  const now = Date.now();
+  const rec = orderRateLimits.get(ip);
+  if (!rec) {
+    orderRateLimits.set(ip, { count: 1, firstTs: now });
+    return true;
+  }
+  if (now - rec.firstTs > windowMs) {
+    // reset window
+    orderRateLimits.set(ip, { count: 1, firstTs: now });
+    return true;
+  }
+  if (rec.count >= maxRequests) return false;
+  rec.count += 1;
+  return true;
+}
+
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const TOKEN = process.env.BOT_TOKEN;
@@ -17,6 +52,19 @@ if (!TOKEN) {
 
 // 1) Bot
 const bot = new TelegramBot(TOKEN, { polling: true });
+
+// --- Anti-spam listener for incoming messages (3s cooldown per user)
+try {
+  bot.on("message", async (msg) => {
+    try {
+      const userId = msg?.from?.id;
+      if (!checkUserCooldown(userId, 3000)) {
+        try { await bot.sendMessage(userId, "⏳ Patiente un instant avant de renvoyer un message."); } catch(e){}
+        return;
+      }
+    } catch(e){}
+  });
+} catch(e){ console.error("anti-spam listener failed", e && e.message); }
 
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
@@ -88,6 +136,23 @@ function verifyTelegramInitData(initData) {
 
 // 6) Order endpoint (optional for your current frontend; safe to keep)
 app.post("/api/order", async (req, res) => {
+
+  // --- Security checks: rate-limit by IP and verify initData HMAC ---
+  try {
+    const ip = (req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress || '').split(',')[0].trim();
+    if (!checkRateLimit(ip)) {
+      return res.status(429).json({ error: "Too many requests" });
+    }
+  } catch(e) {
+    // continue on error
+  }
+
+  // verify initData if provided
+  if (req.body && req.body.initData && !verifyTelegramInitData(req.body.initData, process.env.BOT_TOKEN)) {
+    return res.status(403).json({ error: "initData invalide" });
+  }
+
+
   try {
     const { initData, message } = req.body || {};
 
