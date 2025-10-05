@@ -437,7 +437,7 @@ Arômes citronnés, épicés et terreux, avec une pointe de douceur florale. Eff
 <button class="add-btn" onclick="addToCart('CALI - Alien OG', '3g', 40);updateCartBadge();">
         Ajouter au panier
        </button>
-      </div>
+</div>
 <div class="price-line">
 <span class="price-label">
         60€ → 4,5g
@@ -497,7 +497,7 @@ Son profil aromatique est intense et complexe, mêlant diesel lourd, citron perc
 <button class="add-btn" onclick="addToCart('CALI - Alien OG', '3g', 40);updateCartBadge();">
         Ajouter au panier
        </button>
-      </div>
+</div>
 <div class="price-line">
 <span class="price-label">
         60€ → 4,5g
@@ -589,7 +589,7 @@ Effets intenses et marqués, avec une détente corporelle rapide et une euphorie
       </div>
 </p></div>
 </div>
-   <div class="product-card" onclick="toggle('nofarm')">
+<div class="product-card" onclick="toggle('nofarm')">
 <h3>FILTRÉ 🇲🇦 - No Farm ⛰️🗽🍰</h3>
 <div class="details" id="nofarm" style="display: none;">
 <img alt="nofarm" class="product-image" loading="lazy" src="images/nofarm.webp"/>
@@ -747,7 +747,7 @@ Arômes sucrés et crémeux, rappelant un gâteau vanillé aux agrumes, relevés
 <button class="add-btn" onclick="addToCart('DRYSIFT 90u', '3g', 40);updateCartBadge();">
         Ajouter au panier
        </button>
-      </div>
+</div>
 <div class="price-line">
 <span class="price-label">
         60€ → 5g
@@ -782,7 +782,7 @@ Hybride à dominance indica, avec un taux de THC élevé autour de 25 %. Hash ta
    à la texture grasse et malléable. Saveurs gourmandes de raisin sucré, bonbon crémeux et notes florales. <br/>Effets forts et complets : 
    une euphorie joyeuse et marquée suivie d’une relaxation douce et profonde, idéal pour les amateurs de hash intense et savoureux.
       </p>
-      </p>
+
 <div class="close-desc-btn" onclick="event.stopPropagation(); closeDescription(this)">
        x
       </div>
@@ -805,7 +805,7 @@ Hybride à dominance indica, avec un taux de THC élevé autour de 25 %. Hash ta
 <button class="add-btn" onclick="addToCart('PREMIUM 90u', '1,3g', 20);updateCartBadge();">
         Ajouter au panier
        </button>
-      </div>
+</div>
 <div class="price-line">
 <span class="price-label">
         40€ → 2,5g
@@ -958,7 +958,7 @@ Arômes explosifs de bonbon fruité, menthe fraîche et gaz, qui tapissent le pa
       </p>
 <div class="price-line">
 <span class="price-label">90€</span>
-</span>
+
 <button class="add-btn" onclick="addToCart('PACK HASH', 'pack hash', 90);updateCartBadge();">
         Ajouter au panier
        </button>
@@ -979,10 +979,10 @@ Arômes explosifs de bonbon fruité, menthe fraîche et gaz, qui tapissent le pa
 <div class="details" id="pkdry" style="display: none;">
 <p>
        - 20€ de chaque variété de Drytech 🍨🍊🧃🍒 <br/>- 20€ de chaque variété 120u 🍏🍌🍪 <br/>- 20€ de chaque variété Three Brothers 🍇🍧<br/><br/> Au total 9 variétés de dry ! <br/><br/>Pour 160€ au lieu de 180€ ✓<br/><br/>
-      </p>
+</p>
 <div class="price-line">
 <span class="price-label">160€</span>
-</span>
+
 <button class="add-btn" onclick="addToCart('PACK MEGA DRY', 'pack mega dry', 160€);updateCartBadge();">
         Ajouter au panier
        </button>
@@ -1029,7 +1029,7 @@ Arômes explosifs de bonbon fruité, menthe fraîche et gaz, qui tapissent le pa
       </p>
 <div class="price-line">
 <span class="price-label">120€</span>
-</span>
+
 <button class="add-btn" onclick="addToCart('PACK PREMIUM', 'pack premium', 120);updateCartBadge();">
         Ajouter au panier
        </button>
@@ -1053,7 +1053,7 @@ Arômes explosifs de bonbon fruité, menthe fraîche et gaz, qui tapissent le pa
       </p>
 <div class="price-line">
 <span class="price-label">270€</span>
-</span>
+
 <button class="add-btn" onclick="addToCart('LE BIG PACK', 'LE BIG PACK', 270);updateCartBadge();">
         Ajouter au panier
        </button>
@@ -1127,11 +1127,9 @@ function showNotifier(text = "Produit ajouté au panier", event = null) {
     </span>
 </a>
 </div>
-
 <div id="scrollTopBtn" onclick="scrollToTop()">
    ↥
   </div>
-
 <script>
    function showCartText() {
   const cartBtn = document.querySelector('#quick-links a[onclick*="toggleCartVisibility"]');
@@ -1469,7 +1467,6 @@ function showNotifier(text = "Produit ajouté au panier", event = null) {
 }
 
 </script>
-
 <!-- Delivery hours modal -->
 <div aria-labelledby="delivery-title" aria-modal="true" id="delivery-modal" role="dialog" style="
   position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 10000;
@@ -1666,7 +1663,6 @@ function showNotifier(text = "Produit ajouté au panier", event = null) {
 }
 
 </script>
-
 <style>
 #cart {
   background: #111;
@@ -1707,7 +1703,6 @@ function showNotifier(text = "Produit ajouté au panier", event = null) {
 }
 .cart-line .remove-btn:hover { color: #ff9999; }
 </style>
-
 <script>
 // === Panier unifié (clean) — n'affecte pas le reste du site ===
 let cart = [];
@@ -1871,6 +1866,5 @@ function showNotifier(text = "Produit ajouté au panier", event = null) {
 }
 
 </script>
-
 </body>
 </html>
