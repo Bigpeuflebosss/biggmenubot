@@ -5,6 +5,27 @@ const crypto = require("crypto");
 const path = require("path");
 require("dotenv").config();
 
+
+// === Protection anti-spam globale : verrou dur ===
+const userLocks = new Map();
+
+async function withUserLock(userId, action, cooldownMs = 3000) {
+  const now = Date.now();
+  const lock = userLocks.get(userId);
+  if (lock && now - lock < cooldownMs) {
+    return { blocked: true };
+  }
+  userLocks.set(userId, now);
+  try {
+    await action();
+  } finally {
+    setTimeout(() => userLocks.delete(userId), cooldownMs);
+  }
+  return { blocked: false };
+}
+
+
+
 // === Security helpers added: cooldowns and rate-limiting ===
 const userCooldowns = new Map(); // userId -> timestamp (ms)
 const orderRateLimits = new Map(); // ip -> {count, firstTs}
@@ -26,12 +47,20 @@ function checkRateLimit(ip, maxRequests = 5, windowMs = 60 * 1000) {
   const now = Date.now();
   const rec = orderRateLimits.get(ip);
   if (!rec) {
-    orderRateLimits.set(ip, { count: 1, firstTs: now });
+    orderRateLimits.set(ip, { count: 1, firstTs: now   });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
+});
     return true;
   }
   if (now - rec.firstTs > windowMs) {
     // reset window
-    orderRateLimits.set(ip, { count: 1, firstTs: now });
+    orderRateLimits.set(ip, { count: 1, firstTs: now   });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
+});
     return true;
   }
   if (rec.count >= maxRequests) return false;
@@ -51,7 +80,11 @@ if (!TOKEN) {
 }
 
 // 1) Bot
-const bot = new TelegramBot(TOKEN, { polling: true });
+const bot = new TelegramBot(TOKEN, { polling: true   });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
+});
 
 // --- Anti-spam listener for incoming messages (3s cooldown per user)
 try {
@@ -71,14 +104,30 @@ Ouvre le menu ci-dessous pour passer commande.`;
       keyboard: [[{ text: "🛍️ Ouvrir le menu", web_app: { url: webAppUrl } }]],
       resize_keyboard: true,
     },
+    });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
+});
   });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
 });
 
 // Petit utilitaire pour récupérer facilement l'ID de chat
 bot.onText(/\/id/, (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, `Ton chat_id est: \`${chatId}\``, { parse_mode: "Markdown" });
+  bot.sendMessage(chatId, `Ton chat_id est: \`${chatId}\``, { parse_mode: "Markdown"   });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
+});
   console.log("➡️ chat_id:", chatId);
+  });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
 });
 
 // Log de base pour aider à récupérer des IDs si besoin
@@ -131,7 +180,11 @@ app.post("/api/order", async (req, res) => {
   try {
     const ip = (req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress || '').split(',')[0].trim();
     if (!checkRateLimit(ip)) {
-      return res.status(429).json({ error: "Too many requests" });
+      return res.status(429).json({ error: "Too many requests"   });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
+});
     }
   } catch(e) {
     // continue on error
@@ -139,7 +192,11 @@ app.post("/api/order", async (req, res) => {
 
   // verify initData if provided
   if (req.body && req.body.initData && !verifyTelegramInitData(req.body.initData, process.env.BOT_TOKEN)) {
-    return res.status(403).json({ error: "initData invalide" });
+    return res.status(403).json({ error: "initData invalide"   });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
+});
   }
 
 
@@ -147,7 +204,11 @@ app.post("/api/order", async (req, res) => {
     const { initData, message } = req.body || {};
 
     if (!initData || !verifyTelegramInitData(initData)) {
-      return res.status(403).json({ error: "initData invalide" });
+      return res.status(403).json({ error: "initData invalide"   });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
+});
     }
 
     const params = new URLSearchParams(initData);
@@ -163,15 +224,35 @@ app.post("/api/order", async (req, res) => {
     const text = `📦 *Nouvelle commande Big Menu*\n👤 ${username}\n\n🛒 ${message || "(message vide)"}\n`;
 
     if (TARGET_CHAT_ID) {
-      await bot.sendMessage(TARGET_CHAT_ID, text, { parse_mode: "Markdown" });
+      await bot.sendMessage(TARGET_CHAT_ID, text, { parse_mode: "Markdown"   });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
+});
     } else if (user?.id) {
-      await bot.sendMessage(user.id, text, { parse_mode: "Markdown" });
+      await bot.sendMessage(user.id, text, { parse_mode: "Markdown"   });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
+});
     }
 
-    res.json({ ok: true });
+    res.json({ ok: true   });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
+});
   } catch (err) {
     console.error("Erreur /api/order:", err);
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json({ error: "Erreur serveur"   });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
+});
+  }
+  });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
   }
 });
 
@@ -179,4 +260,8 @@ app.post("/api/order", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Serveur en ligne sur port ${PORT}`);
   console.log(`🌐 WebApp: http://localhost:${PORT}/`);
+  });
+  if (result.blocked) {
+    await bot.sendMessage(userId, '⏳ Patiente un instant avant de renvoyer une commande.');
+  }
 });
