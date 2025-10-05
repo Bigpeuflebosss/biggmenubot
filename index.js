@@ -55,15 +55,7 @@ const bot = new TelegramBot(TOKEN, { polling: true });
 
 // --- Anti-spam listener for incoming messages (3s cooldown per user)
 try {
-  bot.on("message", async (msg) => {
-    try {
-      const userId = msg?.from?.id;
-      if (!checkUserCooldown(userId, 3000)) {
-        try { await bot.sendMessage(userId, "⏳ Patiente un instant avant de renvoyer un message."); } catch(e){}
-        return;
-      }
-    } catch(e){}
-  });
+  
 } catch(e){ console.error("anti-spam listener failed", e && e.message); }
 
 bot.onText(/\/start/, (msg) => {
@@ -90,9 +82,7 @@ bot.onText(/\/id/, (msg) => {
 });
 
 // Log de base pour aider à récupérer des IDs si besoin
-bot.on("message", (msg) => {
-  console.log("📩 Message reçu de", msg.from?.username || msg.from?.id, "chat_id:", msg.chat?.id);
-});
+
 
 // 2) Express middlewares
 app.use(express.json({ limit: "1mb" }));
